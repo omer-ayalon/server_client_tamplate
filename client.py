@@ -1,3 +1,4 @@
+import datetime
 import socket
 import asyncio
 import sys
@@ -12,6 +13,10 @@ class Client:
         self._loop = loop
         self.exit = False
 
+    def print_massage(self, massage):
+        date_and_time = datetime.datetime.now().strftime('%m/%d/%Y %H:%M:%S')
+        print(f'{date_and_time} {massage}')
+
     async def run_client(self):
         client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         client_socket.connect((self._host, self._port))
@@ -23,26 +28,25 @@ class Client:
 
     async def send_handler(self, client_socket):
         while True:
-            massage = await ainput('>>')
+            massage = await ainput('')
             # massage = await input('>>')
+            massage = f'{self._username} : {massage}'
             client_socket.send(massage.encode('utf-8'))
 
     async def recv_handler(self, client_socket):
         while True:
-            data = await self._loop.sock_recv(client_socket, 1024)
-            data = data.decode('utf-8')
-            if data == '':
+            massage = await self._loop.sock_recv(client_socket, 1024)
+            massage = massage.decode('utf-8')
+            if massage == '':
                 raise Exception('Server Is Down')
-            print(data)
+            self.print_massage(massage)
 
 
+def main():
+    loop = asyncio.new_event_loop()
+    client = Client('192.168.1.42', 5048, 'Omer', loop)  # '127.0.0.1'
+    loop.run_until_complete(client.run_client())
 
-# def main():
-loop = asyncio.new_event_loop()
-# loop = asyncio.get_event_loop()
-client = Client('192.168.1.42', 5048, 'PC', loop)  # '127.0.0.1'
-loop.run_until_complete(client.run_client())
-# asyncio.run(client.run_client())
 
-# if __name__ == '__main__':
-#     main()
+if __name__ == '__main__':
+    main()

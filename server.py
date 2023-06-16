@@ -1,5 +1,6 @@
 import socket
 import asyncio
+import datetime
 
 
 class Server:
@@ -42,8 +43,8 @@ class Server:
 
                 print(f'Server Received Massage From: {user_name}')
                 for receiving_client in self.cliend_list:
-                    # if client_socket != receiving_client:
-                    receiving_client.send(data)
+                    if client_socket != receiving_client:
+                        receiving_client.send(data)
         except ConnectionResetError:
             self.remove_client(user_name, client_socket)
 
